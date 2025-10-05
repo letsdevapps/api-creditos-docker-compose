@@ -1,0 +1,5 @@
+backend-springboot/
+frontend-angular/
+schema.sql
+data.sql
+docker

@@ -1,0 +1,64 @@
+version: '3.8'
+services:
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: creditosdb
+      MYSQL_USER: usuario
+      MYSQL_PASSWORD: senha
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./backend-springboot/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql
+      - ./backend-springboot/src/main/resources/data.sql:/docker-entrypoint-initdb.d/002-data.sql
+
+  zookeeper:
+    image: zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+
+  backend:
+    build: ./backend-springboot
+    container_name: backend-springboot
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/creditosdb
+      - SPRING_DATASOURCE_USERNAME=usuario
+      - SPRING_DATASOURCE_PASSWORD=senha
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      - mariadb
+      - kafka
+
+  frontend:
+    build: ./frontend-angular
+    container_name: frontend-angular
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend-angular:/app
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
+
+volumes:
+  mariadb_data:
