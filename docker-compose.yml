@@ -53,12 +53,8 @@ services:
     container_name: frontend-angular
     ports:
       - "4200:4200"
-    volumes:
-      - ./frontend-angular:/app
     environment:
       - NODE_ENV=development
-    depends_on:
-      - backend
 
 volumes:
   mariadb_data:
