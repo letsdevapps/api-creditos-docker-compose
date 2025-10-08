@@ -2,6 +2,8 @@
 
 Este repositório contém a orquestração para o projeto backend-springboot e frontend-angular usando Docker Compose. Para configurar e rodar o projeto, siga os passos abaixo.
 
+A máquina que irá rodar as aplicações necessita Git, Docker e Docker-Compose instalados
+
 ## Passos para configurar
 
 1. Clone este repositório:
